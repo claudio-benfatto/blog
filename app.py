@@ -3,6 +3,7 @@ import functools
 import os
 import re
 import urllib
+import config
 
 from flask import (Flask, flash, Markup, redirect, render_template, request,
                    Response, session, url_for)
@@ -21,7 +22,9 @@ from playhouse.sqlite_ext import *
 # You may consider using a one-way hash to generate the password, and then
 # use the hash again in the login view to perform the comparison. This is just
 # for simplicity.
-ADMIN_PASSWORD = 'secret'
+ADMIN_PASSWORD = config.admin_password
+
+print("ADMIN PASSWORD IS " + ADMIN_PASSWORD)
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # The playhouse.flask_utils.FlaskDB object accepts database URL configuration.
