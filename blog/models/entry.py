@@ -11,11 +11,13 @@ class BaseModel(flask_db.Model):
 
 
 class Entry(BaseModel):
-    title = CharField()
-    slug = CharField(unique=True)
-    content = TextField()
-    published = BooleanField(index=True)
-    timestamp = DateTimeField(default=datetime.datetime.now, index=True)
+
+    def __init__(self):
+        title = CharField()
+        slug = CharField(unique=True)
+        content = TextField()
+        published = BooleanField(index=True)
+        timestamp = DateTimeField(default=datetime.datetime.now, index=True)
 
     @property
     def html_content(self):
