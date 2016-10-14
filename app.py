@@ -24,7 +24,6 @@ from playhouse.sqlite_ext import *
 # for simplicity.
 ADMIN_PASSWORD = config.admin_password
 
-print("ADMIN PASSWORD IS " + ADMIN_PASSWORD)
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
 
 # The playhouse.flask_utils.FlaskDB object accepts database URL configuration.
