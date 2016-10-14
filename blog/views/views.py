@@ -1,19 +1,11 @@
-import datetime
 import functools
-import os
-import re
-import urllib
+
+from blog import app
 from blog.models import Entry
 
-from flask import (Flask, flash, Markup, redirect, render_template, request,
+from flask import (flash, redirect, render_template, request,
                    Response, session, url_for)
-from markdown import markdown
-from markdown.extensions.codehilite import CodeHiliteExtension
-from markdown.extensions.extra import ExtraExtension
-from micawber import bootstrap_basic, parse_html
-from micawber.cache import Cache as OEmbedCache
 from playhouse.flask_utils import get_object_or_404, object_list
-from playhouse.flask_utils import FlaskDB
 
 
 def login_required(fn):
