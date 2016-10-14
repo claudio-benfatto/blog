@@ -1,0 +1,6 @@
+flask
+BeautifulSoup4
+micawber
+pygments
+markdown
+peewee
