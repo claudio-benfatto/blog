@@ -2,8 +2,7 @@ import datetime
 
 from blog.app import database, flask_db
 
-from playhouse.flask_utils import FlaskDB
-from playhouse.sqlite_ext import *
+from playhouse.sqlite_ext import CharField, TextField, BooleanField, DateTimeField
 
 class BaseModel(flask_db.Model):
 
