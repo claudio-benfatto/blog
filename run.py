@@ -1,4 +1,6 @@
 from blog import app
+from blog.views import views
+
 from blog.models.entry import Entry
 
 def main():

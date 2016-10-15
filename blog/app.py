@@ -9,28 +9,27 @@ from playhouse.flask_utils import FlaskDB
 
 # Blog configuration values.
 
-# You may consider using a one-way hash to generate the password, and then
 # use the hash again in the login view to perform the comparison. This is just
 # for simplicity.
-ADMIN_PASSWORD = config.admin_password
-
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 APP_DIR = os.path.dirname(os.path.realpath(__file__))
-
-# The playhouse.flask_utils.FlaskDB object accepts database URL configuration.
-DATABASE = 'sqliteext:///%s' % os.path.join(APP_DIR, 'blog.db')
-DEBUG = False
-
-# The secret key is used internally by Flask to encrypt session data stored
-# in cookies. Make this unique for your app.
-SECRET_KEY = 'shhh, secret!'
 
 # This is used by micawber, which will attempt to generate rich media
 # embedded objects with maxwidth=800.
 SITE_WIDTH = 800
 
-
 # Create a Flask WSGI app and configure it using values from the module.
 app = Flask(__name__)
+
+# Load default config and override config from an environment variable
+app.config.update(dict(
+    DATABASE='sqliteext:///%s' % os.path.join(APP_DIR, 'blog.db'),
+    DEBUG=True,
+    SECRET_KEY='shhh, secret!',
+    USERNAME='admin',
+    PASSWORD='default'
+))
+
 app.config.from_object(__name__)
 
 # FlaskDB is a wrapper for a peewee database that sets up pre/post-request

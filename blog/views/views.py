@@ -1,8 +1,6 @@
 import functools
-
-from blog import app
-from blog.models import Entry
-
+from blog.models.entry import Entry
+from blog.app import app
 from flask import (flash, redirect, render_template, request,
                    Response, session, url_for)
 from playhouse.flask_utils import get_object_or_404, object_list
@@ -18,6 +16,9 @@ def login_required(fn):
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
+    print("Logging in")
+    print("Password")
+    print(request.method)
     next_url = request.args.get('next') or request.form.get('next')
     if request.method == 'POST' and request.form.get('password'):
         password = request.form.get('password')
@@ -41,14 +42,7 @@ def logout():
 
 @app.route('/')
 def index():
-
-    # The `object_list` helper will take a base query and then handle
-    # paginating the results if there are more than 20. For more info see
-    # the docs:
-    # http://docs.peewee-orm.com/en/latest/peewee/playhouse.html#object_list
-    return object_list(
-        'index.html',
-        check_bounds=False)
+    return render_template('index.html')
 
 @app.route('/create/', methods=['GET', 'POST'])
 @login_required
@@ -106,4 +100,4 @@ def edit(slug):
 
 @app.errorhandler(404)
 def not_found(exc):
-    return Response('<h3>Not found</h3>'), 404
+    return Response('<h3>Sorry Not found</h3>'), 404
