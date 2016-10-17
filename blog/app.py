@@ -6,6 +6,7 @@ from flask import Flask
 from micawber import bootstrap_basic
 from micawber.cache import Cache as OEmbedCache
 from playhouse.flask_utils import FlaskDB
+from flask_sqlalchemy import SQLAlchemy
 
 # Blog configuration values.
 
@@ -23,7 +24,9 @@ app = Flask(__name__)
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    DATABASE='sqliteext:///%s' % os.path.join(APP_DIR, 'blog.db'),
+    SQLALCHEMY_DATABASE_URI='sqlite:///%s' % os.path.join(APP_DIR, 'blog.db'),
+    SQLALCHEMY_COMMIT_ON_TEARDOWN=True,
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
     DEBUG=True,
     SECRET_KEY='shhh, secret!',
     USERNAME='admin',
@@ -34,11 +37,11 @@ app.config.from_object(__name__)
 
 # FlaskDB is a wrapper for a peewee database that sets up pre/post-request
 # hooks for managing database connections.
-flask_db = FlaskDB(app)
+database = SQLAlchemy(app)
 
 # The `database` is the actual peewee database, as opposed to flask_db which is
 # the wrapper.
-database = flask_db.database
+#database = flask_db.database
 
 # Configure micawber with the default OEmbed providers (YouTube, Flickr, etc).
 # We'll use a simple in-memory cache so that multiple requests for the same

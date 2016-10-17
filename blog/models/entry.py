@@ -1,23 +1,41 @@
 import datetime
+import re
+from flask import Markup
+from markdown import markdown
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
+from markdown.extensions.codehilite import CodeHiliteExtension
+from markdown.extensions.extra import ExtraExtension
+from micawber import bootstrap_basic, parse_html
+from micawber.cache import Cache as OEmbedCache
 
-from blog.app import database, flask_db
-
-from playhouse.sqlite_ext import CharField, TextField, BooleanField, DateTimeField
-
-class BaseModel(flask_db.Model):
-
-    class Meta:
-        database = database
+oembed_providers = bootstrap_basic(OEmbedCache())
 
 
-class Entry(BaseModel):
+Base = declarative_base()
 
-    def __init__(self):
-        title = CharField()
-        slug = CharField(unique=True)
-        content = TextField()
-        published = BooleanField(index=True)
-        timestamp = DateTimeField(default=datetime.datetime.now, index=True)
+class Entry(Base):
+
+    __tablename__='entry'
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(128))
+    slug = Column(String(128), unique=True)
+    content = Column(Text)
+    published = Column(Boolean)
+    timestamp = Column(DateTime, nullable=False)
+
+    def __init__(self, title=title, content=content, published=published):
+        self.title = title
+        self.slug = self.create_slug()
+        self.content = content
+        self.published = published
+        self.timestamp = datetime.datetime.now()
+
+    def __repr__(self):
+      #  return "<Entry(title='%s', slug='%s', published='%r', timestamp='%s'>" % (
+        #    self.title, self.slug, self.published, str(self.timestamp))
+        return "User"
 
     @property
     def html_content(self):
@@ -33,21 +51,11 @@ class Entry(BaseModel):
             markdown_content,
             oembed_providers,
             urlize_all=True,
-            maxwidth=app.config['SITE_WIDTH'])
+            maxwidth=800)
         return Markup(oembed_content)
 
-    def save(self, *args, **kwargs):
+    def create_slug(self):
         # Generate a URL-friendly representation of the entry's title.
         if not self.slug:
-            self.slug = re.sub('[^\w]+', '-', self.title.lower()).strip('-')
-        ret = super(Entry, self).save(*args, **kwargs)
-
-        return ret
-
-    @classmethod
-    def public(cls):
-        return Entry.select().where(Entry.published == True)
-
-    @classmethod
-    def drafts(cls):
-        return Entry.select().where(Entry.published == False)
+            return re.sub('[^\w]+', '-', self.title.lower()).strip('-')
+        return self.slug

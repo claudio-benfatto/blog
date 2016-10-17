@@ -1,9 +1,10 @@
 import functools
 from blog.models.entry import Entry
 from blog.app import app
+from blog.app import database
 from flask import (flash, redirect, render_template, request,
                    Response, session, url_for)
-from playhouse.flask_utils import get_object_or_404, object_list
+from markdown.extensions.codehilite import CodeHiliteExtension
 
 
 def login_required(fn):
@@ -42,17 +43,20 @@ def logout():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    published = database.session.query(Entry).filter(Entry.published==True)
+    return render_template('index.html', object_list=published)
 
 @app.route('/create/', methods=['GET', 'POST'])
 @login_required
 def create():
     if request.method == 'POST':
         if request.form.get('title') and request.form.get('content'):
-            entry = Entry.create(
+            entry = Entry(
                 title=request.form['title'],
                 content=request.form['content'],
                 published=request.form.get('published') or False)
+            database.session.add(entry)
+            database.session.commit()
             flash('Entry created successfully.', 'success')
             if entry.published:
                 return redirect(url_for('detail', slug=entry.slug))
@@ -65,17 +69,16 @@ def create():
 @app.route('/drafts/')
 @login_required
 def drafts():
-    query = Entry.drafts().order_by(Entry.timestamp.desc())
-    return object_list('index.html', query, check_bounds=False)
+    drafts = database.session.query(Entry).filter(Entry.published==False).order_by(Entry.timestamp.desc())
+    return render_template('index.html', object_list=drafts, check_bounds=False)
 
 @app.route('/<slug>/')
 def detail(slug):
     if session.get('logged_in'):
-        query = Entry.select()
+        query = database.session.query(Entry).filter(Entry.slug == slug)
     else:
-        query = Entry.public()
-    entry = get_object_or_404(query, Entry.slug == slug)
-    return render_template('detail.html', entry=entry)
+        query = database.session.query(Entry).filter(Entry.published==True).filter(Entry.slug == slug)
+    return render_template('detail.html', entry=query.first())
 
 @app.route('/<slug>/edit/', methods=['GET', 'POST'])
 @login_required
