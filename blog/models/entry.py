@@ -1,9 +1,9 @@
 import datetime
 import re
 from flask import Markup
-from markdown import markdown
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
+from markdown import markdown
 from markdown.extensions.codehilite import CodeHiliteExtension
 from markdown.extensions.extra import ExtraExtension
 from micawber import bootstrap_basic, parse_html
@@ -57,5 +57,5 @@ class Entry(database.Model):
     def create_slug(self):
         # Generate a URL-friendly representation of the entry's title.
         if not self.slug:
-            return re.sub('[^\w]+', '-', self.title.lower()).strip('-')
+            return re.sub(r'[^\w]+', '-', self.title.lower()).strip('-')
         return self.slug

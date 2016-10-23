@@ -9,20 +9,20 @@ from blog import config
 database = SQLAlchemy()
 
 def create_app():
-	app = Flask(__name__)
-	database.init_app(app)
+    app = Flask(__name__)
+    database.init_app(app)
 
-	app.config.from_object(config.get_config())
-	config.get_config().init_app(app)
-	
-	from blog.main import main as main_blueprint
+    app.config.from_object(config.get_config())
+    config.get_config().init_app(app)
 
-	app.register_blueprint(main_blueprint)
-	context = app.app_context()
-	with context:
-		database.create_all()
+    from blog.main import main as main_blueprint
 
-	return app
+    app.register_blueprint(main_blueprint)
+    context = app.app_context()
+    with context:
+        database.create_all()
+
+    return app
 
 from  blog.main import views
 

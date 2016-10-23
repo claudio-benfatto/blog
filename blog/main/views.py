@@ -1,11 +1,9 @@
 import functools
-from blog.config import config as config
 from blog.main import main, main_config
 from blog import database
 from blog.models.entry import Entry
 from flask import (flash, redirect, render_template, request,
-                   Response, session, url_for)
-from markdown.extensions.codehilite import CodeHiliteExtension
+            session, url_for)
 from sqlalchemy.orm import exc
 from werkzeug.exceptions import abort
 
@@ -50,7 +48,7 @@ def logout():
 
 @main.route('/')
 def index():
-    published = database.session.query(Entry).filter(Entry.published==True)
+    published = database.session.query(Entry).filter(Entry.published == True)
     return render_template('index.html', object_list=published)
 
 @main.route('/create/', methods=['GET', 'POST'])
@@ -76,15 +74,15 @@ def create():
 @main.route('/drafts/')
 @login_required
 def drafts():
-    drafts = database.session.query(Entry).filter(Entry.published==False).order_by(Entry.timestamp.desc())
-    return render_template('index.html', object_list=drafts, check_bounds=False)
+    my_drafts = database.session.query(Entry).filter(Entry.published is False).order_by(Entry.timestamp.desc())
+    return render_template('index.html', object_list=my_drafts, check_bounds=False)
 
 @main.route('/<slug>/')
 def detail(slug):
     if session.get('logged_in'):
         query = database.session.query(Entry).filter(Entry.slug == slug)
     else:
-        query = database.session.query(Entry).filter(Entry.published==True).filter(Entry.slug == slug)
+        query = database.session.query(Entry).filter(Entry.published is True).filter(Entry.slug == slug)
 
     entry = get_object_or_404(Entry, Entry.slug == slug)
     return render_template('detail.html', entry=entry)
@@ -109,4 +107,3 @@ def edit(slug):
             flash('Title and Content are required.', 'danger')
 
     return render_template('edit.html', entry=entry)
-
