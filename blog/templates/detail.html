@@ -6,11 +6,11 @@
 
 {% block extra_header %}
   {% if session.logged_in %}
-    <li><a href="{{ url_for('edit', slug=entry.slug) }}">Edit entry</a></li>
+    <li><a href="{{ url_for('main.edit', slug=entry.slug) }}">Edit entry</a></li>
   {% endif %}
 {% endblock %}
 
 {% block content %}
-<p>Created {{ entry.timestamp.strftime('%m/%d/%Y at %G:%I%p') }}</p>
+<p>Created </p>
   {{ entry.html_content }}
 {% endblock %}

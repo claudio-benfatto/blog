@@ -8,15 +8,16 @@ from markdown.extensions.codehilite import CodeHiliteExtension
 from markdown.extensions.extra import ExtraExtension
 from micawber import bootstrap_basic, parse_html
 from micawber.cache import Cache as OEmbedCache
+from blog import database
 
 oembed_providers = bootstrap_basic(OEmbedCache())
 
 
 Base = declarative_base()
 
-class Entry(Base):
+class Entry(database.Model):
 
-    __tablename__='entry'
+    __tablename__ = 'entry'
 
     id = Column(Integer, primary_key=True)
     title = Column(String(128))
@@ -33,9 +34,8 @@ class Entry(Base):
         self.timestamp = datetime.datetime.now()
 
     def __repr__(self):
-      #  return "<Entry(title='%s', slug='%s', published='%r', timestamp='%s'>" % (
-        #    self.title, self.slug, self.published, str(self.timestamp))
-        return "User"
+        return "<Entry(title='%s', slug='%s', published='%r', timestamp='%s'>" % (
+            self.title, self.slug, self.published, str(self.timestamp))
 
     @property
     def html_content(self):

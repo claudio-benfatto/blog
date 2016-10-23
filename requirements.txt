@@ -5,3 +5,6 @@ pygments
 markdown
 peewee
 flask-sqlalchemy
+Flask-Script
+Flask-Migrate
+Flask-Shell

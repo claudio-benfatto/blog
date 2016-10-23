@@ -1,6 +1,6 @@
 import os
+import blog
 from blog import app
-from blog.views import views
 from test.support import EnvironmentVarGuard
 
 from flask import url_for
@@ -18,25 +18,35 @@ class AppTestCase(unittest.TestCase):
         return self.test_app.get('/logout', follow_redirects=True)
 
     def setUp(self):
-        self.db_fd, app.app.config['DATABASE'] = tempfile.mkstemp()
-        app.app.config['TESTING'] = True
-        app.app.config['DEBUG'] = False
-        app.app.config['WTF_CSRF_ENABLED'] = False
-        app.app.config['SERVER_NAME']="testing"
+        
+        APP_DIR = os.path.dirname(os.path.realpath(__file__))
+
+        config =dict(
+            SERVER_NAME = "localhost",
+            SQLALCHEMY_DATABASE_URI='sqlite:///%s' % os.path.join(APP_DIR, 'test_blog.db'),
+            SQLALCHEMY_COMMIT_ON_TEARDOWN=False,
+            SQLALCHEMY_TRACK_MODIFICATIONS=False,
+            TESTING=True,
+            DEBUG=False,
+            SECRET_KEY='shhh, secret!',
+            USERNAME='admin',
+            PASSWORD='default',
+            APP_ADMIN_PASSWORD='password'
+        )
+
+        blog.config_app(config)
 
         self.env = EnvironmentVarGuard()
         self.env.set('ADMIN_PASSWORD', 'password')
 
-        self.app = app.app
-        self.app_context = self.app.app_context()
-        self.app_context.push()
+        app_context = app.app_context()
+        app_context.push()
 
         with(self.env):
-            self.test_app = self.app.test_client()
+            self.test_app = app.test_client()
 
     def tearDown(self):
-        os.close(self.db_fd)
-        os.unlink(app.app.config['DATABASE'])
+        pass
 
     def test_error_page(self):
         rv = self.test_app.get('/not_existent', follow_redirects=True)
@@ -48,6 +58,7 @@ class AppTestCase(unittest.TestCase):
         self.assertIn(b'No entries have been created yet', rv.data)
 
     def test_get_login_empty_db(self):
+        print(url_for('login'))
         rv = self.test_app.get('/login', follow_redirects=True)
         self.assertEqual(rv.status_code, 200)
         self.assertIn(b'Log in', rv.data)
@@ -66,9 +77,7 @@ class AppTestCase(unittest.TestCase):
        with self.env:
             rv = self.test_app.post(url_for('login'), data=dict(password="password"),
                            follow_redirects=True)
-            print(rv.data)
-
-          # self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.status_code, 200)
 
 
 if __name__ == '__main__':
